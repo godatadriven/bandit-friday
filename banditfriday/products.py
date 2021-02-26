@@ -1,16 +1,26 @@
 from abc import ABCMeta, abstractmethod
-from typing import List
+from json import dump, loads
+from typing import Dict, List, Optional
 
 import matplotlib.pyplot as plt
 from numpy import array, argmax, linspace, mean
 from numpy.random import random
+from pkg_resources import resource_string
 from scipy.stats import expon, norm, gamma, gengamma
 
 
 class Product(metaclass=ABCMeta):
-    def __init__(self, mean_probability: float = 0.175):
-        self.norm = None
-        self.norm = mean_probability / mean([mean(x) for x in self.matrix])
+    def __init__(self, normalization: Optional[float] = None):
+        self.norm = normalization or self.load_normalization()
+
+    @classmethod
+    def load_normalization(cls) -> float:
+        return loads(resource_string("banditfriday", "norms.json"))[cls.__name__]
+
+    @classmethod
+    def compute_normalization(cls, mean_probability: float) -> float:
+        p = cls(normalization=0.01)
+        return 100 * mean_probability / mean([mean(x) for x in p.matrix])
 
     def is_bought_by(self, age: float, wealth: float) -> bool:
         return random() < self.p(age, wealth)
@@ -82,28 +92,32 @@ class Sushi(Product):
         return gengamma(a=3, c=-3).pdf(age + 0.4) * wealth ** 2
 
 
-def plot_product_probabilities(*products: Product) -> None:
+def plot_product_probabilities(products: Dict[str, Product]) -> None:
     fig, axes = plt.subplots(3, 3, figsize=(16, 16))
     axes = [ax for row in axes for ax in row]
-    for product, ax in zip(products, axes):
+    for product, ax in zip(products.values(), axes):
         product.show(fig, ax)
 
 
-def plot_max_probabilities(*products: Product) -> None:
+def plot_max_probabilities(products: Dict[str, Product]) -> None:
     fig, axes = plt.subplots(3, 3, figsize=(16, 16))
     axes = [ax for row in axes for ax in row]
-    max_probs = argmax(array([p.matrix for p in products]), axis=0)
-    for i, (product, ax) in enumerate(zip(products, axes)):
+    max_probs = argmax(array([p.matrix for p in products.values()]), axis=0)
+    for i, (product, ax) in enumerate(zip(products.values(), axes)):
         ax.imshow(max_probs == i)
         ax.set_title(product.__class__.__name__)
 
 
-ALL_PRODUCTS = {
-    "beer": Beer(mean_probability=0.3),
-    "cheap_toilet_paper": CheapToiletPaper(mean_probability=0.01),
-    "diapers": Diapers(),
-    "lollipops": Lollipops(),
-    "potatoes": Potatoes(),
-    "raspberries": Raspberries(),
-    "sushi": Sushi(),
-}
+def compute_normalizations() -> None:
+    results = dict()
+    probabilities = {"Beer": 0.03, "CheapToiletPaper": 0.01}
+    for product_class in Product.__subclasses__():
+        if product_class.__name__ not in results:
+            results[product_class.__name__] = product_class.compute_normalization(
+                probabilities.get(product_class.__name__, 0.175)
+            )
+    with open("banditfriday/norms.json", "w") as f:
+        dump(results, f)
+
+
+ALL_PRODUCTS = {product.__name__: product() for product in Product.__subclasses__()}
