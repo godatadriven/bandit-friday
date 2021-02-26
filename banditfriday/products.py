@@ -8,7 +8,7 @@ from scipy.stats import expon, norm, gamma
 
 
 class Product(metaclass=ABCMeta):
-    def __init__(self, mean_probability: float = 0.1):
+    def __init__(self, mean_probability: float = 0.175):
         self.norm = None
         self.norm = mean_probability / mean([mean(x) for x in self.matrix])
 
@@ -61,7 +61,7 @@ class Lollipops(Product):
 
 class Raspberries(Product):
     def _p(self, age: float, wealth: float) -> float:
-        p = gamma.pdf(age*wealth, a=5)
+        p = gamma.pdf(age * wealth, a=5)
         return p
 
 
