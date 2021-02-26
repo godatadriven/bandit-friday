@@ -4,7 +4,7 @@ from typing import List
 import matplotlib.pyplot as plt
 from numpy import array, argmax, linspace, mean
 from numpy.random import random
-from scipy.stats import norm
+from scipy.stats import expon, norm
 
 
 class Product(metaclass=ABCMeta):
@@ -53,6 +53,12 @@ class Diapers(Product):
         return p if wealth > 0.2 else 0
 
 
+class Lollipops(Product):
+    def _p(self, age: float, wealth: float) -> float:
+        p = expon().pdf(age) * (1 - wealth * 0.2)
+        return p
+
+
 def plot_product_probabilities(*products: Product) -> None:
     fig, axes = plt.subplots(3, 3, figsize=(16, 16))
     axes = [ax for row in axes for ax in row]
@@ -69,4 +75,4 @@ def plot_max_probabilities(*products: Product) -> None:
         ax.set_title(product.__class__.__name__)
 
 
-ALL_PRODUCTS = [Beer(), Diapers()]
+ALL_PRODUCTS = [Beer(), Diapers(), Lollipops()]
