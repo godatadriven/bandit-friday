@@ -20,7 +20,7 @@ class Product(metaclass=ABCMeta):
     @classmethod
     def compute_normalization(cls, mean_probability: float) -> float:
         p = cls(normalization=0.01)
-        return 100 * mean_probability / mean([mean(x) for x in p.matrix])
+        return 0.01 * mean_probability / mean([mean(x) for x in p.matrix])
 
     def is_bought_by(self, age: float, wealth: float) -> bool:
         return random() < self.p(age, wealth)
