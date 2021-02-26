@@ -15,5 +15,5 @@ class CheatingStrategy(Strategy):
         product_id = self.max_probs[int(wealth*100), int(age*100)]
         return list(self.products.keys())[product_id]
 
-    def pass_feedback(self, product_name: str, reward: bool) -> None:
+    def pass_feedback(self, age: float, wealth: float, product_name: str, reward: bool) -> None:
         pass
