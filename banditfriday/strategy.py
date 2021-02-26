@@ -51,10 +51,10 @@ class BaselineStrategy(Strategy):
 
 
 class ThompsonSampling(Strategy):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.counts = {key: 0 for key in self.products}
-        self.rewards = {key: 0 for key in self.products}
+    def __init__(self, products: Dict[str, Product], **kwargs):
+        self.counts = {key: 0 for key in products}
+        self.rewards = {key: 0 for key in products}
+        super().__init__(products=products, **kwargs)
 
     def get_recommendation(self, age: float, wealth: float) -> str:
         draw = {
