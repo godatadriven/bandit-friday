@@ -98,12 +98,12 @@ def plot_max_probabilities(*products: Product) -> None:
         ax.set_title(product.__class__.__name__)
 
 
-ALL_PRODUCTS = [
-    Beer(mean_probability=0.3),
-    CheapToiletPaper(mean_probability=0.01),
-    Diapers(),
-    Lollipops(),
-    Potatoes(),
-    Raspberries(),
-    Sushi(),
-]
+ALL_PRODUCTS = {
+    "beer": Beer(mean_probability=0.3),
+    "cheap_toilet_paper": CheapToiletPaper(mean_probability=0.01),
+    "diapers": Diapers(),
+    "lollipops": Lollipops(),
+    "potatoes": Potatoes(),
+    "raspberries": Raspberries(),
+    "sushi": Sushi(),
+}
