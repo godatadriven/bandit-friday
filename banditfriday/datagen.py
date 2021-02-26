@@ -22,7 +22,7 @@ def generate_product_data(products: Dict[str, Product], size: int = 100):
 
     for product_name, product in products.items():
 
-        data[product_name.lower()] = [
+        data[product_name] = [
             product.is_bought_by(x, y) for x, y in zip(data["age"], data["wealth"])
         ]
 
