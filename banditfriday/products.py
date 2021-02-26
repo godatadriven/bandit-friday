@@ -2,7 +2,7 @@ from abc import ABCMeta, abstractmethod
 from typing import List
 
 import matplotlib.pyplot as plt
-from numpy import linspace, mean
+from numpy import array, argmax, linspace, mean
 from numpy.random import random
 from scipy.stats import norm
 
@@ -58,3 +58,15 @@ def plot_product_probabilities(*products: Product) -> None:
     axes = [ax for row in axes for ax in row]
     for product, ax in zip(products, axes):
         product.show(fig, ax)
+
+
+def plot_max_probabilities(*products: Product) -> None:
+    fig, axes = plt.subplots(3, 3, figsize=(16, 16))
+    axes = [ax for row in axes for ax in row]
+    max_probs = argmax(array([p.matrix for p in products]), axis=0)
+    for i, (product, ax) in enumerate(zip(products, axes)):
+        ax.imshow(max_probs == i)
+        ax.set_title(product.__class__.__name__)
+
+
+ALL_PRODUCTS = [Beer(), Diapers()]
