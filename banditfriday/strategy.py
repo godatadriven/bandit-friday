@@ -2,7 +2,7 @@ import operator
 from abc import ABCMeta, abstractmethod
 from typing import List, Dict, Optional
 
-from numpy.random import random
+from numpy.random import random, beta
 from pandas import DataFrame
 
 from banditfriday.products import Product, ALL_PRODUCTS
@@ -33,9 +33,9 @@ class Strategy(metaclass=ABCMeta):
 
 
 class BaselineStrategy(Strategy):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.products_popularity = {key: 0 for key in self.products}
+    def __init__(self, products: Dict[str, Product], **kwargs):
+        self.products_popularity = {key: 0 for key in products}
+        super().__init__(products=products, **kwargs)
 
     def learn_from_history(self, df: DataFrame):
         for product_name in self.products:
@@ -50,7 +50,29 @@ class BaselineStrategy(Strategy):
         self.products_popularity[product_name] += 1
 
 
-def simulate(strategies: List[Strategy], products: Dict[str, Product] = ALL_PRODUCTS, steps: int = 100):
+class ThompsonSampling(Strategy):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.counts = {key: 0 for key in self.products}
+        self.rewards = {key: 0 for key in self.products}
+
+    def get_recommendation(self, age: float, wealth: float) -> str:
+        draw = {
+            arm: beta(self.rewards[arm] + 1, self.counts[arm] - self.rewards[arm] + 1)
+            for arm in self.counts.keys()
+        }
+        return max(draw.items(), key=lambda x: x[1])[0]
+
+    def pass_feedback(self, product_name: str, reward: bool) -> None:
+        self.counts[product_name] += 1
+        self.rewards[product_name] += int(reward)
+
+
+def simulate(
+    strategies: List[Strategy],
+    products: Dict[str, Product] = ALL_PRODUCTS,
+    steps: int = 100,
+):
     for strategy in strategies:
         total_reward = 0
         for _ in range(steps):
