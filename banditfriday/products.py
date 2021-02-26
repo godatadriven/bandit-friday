@@ -47,6 +47,16 @@ class Beer(Product):
         return 0.3 - age * 0.1 + (1 - wealth) * 0.2
 
 
+class CheapToiletPaper(Product):
+    def __init__(self, mean_probability: float = 0.01):
+        super().__init__(mean_probability=mean_probability)
+
+    def _p(self, age: float, wealth: float) -> float:
+        if wealth < 0.05:
+            return 0.1
+        return 0
+
+
 class Diapers(Product):
     def _p(self, age: float, wealth: float) -> float:
         p = norm(loc=age, scale=0.2).pdf(0.3)
@@ -91,4 +101,12 @@ def plot_max_probabilities(*products: Product) -> None:
         ax.set_title(product.__class__.__name__)
 
 
-ALL_PRODUCTS = [Beer(), Diapers(), Lollipops(), Potatoes(), Raspberries(), Sushi()]
+ALL_PRODUCTS = [
+    Beer(),
+    CheapToiletPaper(),
+    Diapers(),
+    Lollipops(),
+    Potatoes(),
+    Raspberries(),
+    Sushi(),
+]
