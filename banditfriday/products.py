@@ -1,8 +1,9 @@
 from abc import ABCMeta, abstractmethod
-import matplotlib.pyplot as plt
-from numpy import linspace, mean
 from typing import List
 
+import matplotlib.pyplot as plt
+from numpy import linspace, mean
+from numpy.random import random
 from scipy.stats import norm
 
 
@@ -10,6 +11,9 @@ class Product(metaclass=ABCMeta):
     def __init__(self, mean_probability: float = 0.1):
         self.norm = None
         self.norm = mean_probability / mean([mean(x) for x in self.matrix])
+
+    def is_bought_by(self, age: float, wealth: float) -> bool:
+        return random() < self.p(age, wealth)
 
     def p(self, age: float, wealth: float) -> float:
         if self.norm is None:
