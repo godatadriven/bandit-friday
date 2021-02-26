@@ -19,9 +19,14 @@ class Strategy(metaclass=ABCMeta):
     def learn_from_history(self, df: DataFrame):
         """Poor man's update."""
         for _, row in df.iterrows():
-            for key, value in row.asDict().items():
+            for key, value in row.to_dict().items():
                 if key in self.products:
-                    self.pass_feedback(key, value)
+                    self.pass_feedback(
+                        age=row["age"],
+                        wealth=row["wealth"],
+                        reward=value,
+                        product_name=key,
+                    )
 
     @abstractmethod
     def get_recommendation(self, age: float, wealth: float) -> str:
