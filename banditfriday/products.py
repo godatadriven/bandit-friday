@@ -110,7 +110,7 @@ def plot_max_probabilities(products: Dict[str, Product]) -> None:
 
 def compute_normalizations() -> None:
     results = dict()
-    probabilities = {"Beer": 0.03, "CheapToiletPaper": 0.01}
+    probabilities = {"Beer": 0.3, "CheapToiletPaper": 0.01}
     for product_class in Product.__subclasses__():
         if product_class.__name__ not in results:
             results[product_class.__name__] = product_class.compute_normalization(
