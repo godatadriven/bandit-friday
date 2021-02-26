@@ -8,7 +8,8 @@ setup(
     install_requires=["scipy", "numpy", "matplotlib", "pandas"],
     entry_points={
         "console_scripts": [
-            "recompute-normalization=banditfriday.products:compute_normalizations"
+            "recompute-normalization=banditfriday.products:compute_normalizations",
+            "regenerate-data=banditfriday.datagen:regenerate_data",
         ]
     },
 )
