@@ -1,6 +1,6 @@
 import operator
 from abc import ABCMeta, abstractmethod
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Type, Tuple
 
 from numpy.random import random, beta
 from pandas import DataFrame
@@ -28,8 +28,48 @@ class Strategy(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def pass_feedback(self, product_name: str, reward: bool) -> None:
+    def pass_feedback(
+        self, age: float, wealth: float, product_name: str, reward: bool
+    ) -> None:
         pass
+
+
+class BinnedStrategy(Strategy):
+    def __init__(
+        self,
+        strategy: Type[Strategy],
+        products: Dict[str, Product],
+        history: Optional[DataFrame] = None,
+        n_bins: int = 2,
+    ):
+        self.n_bins = n_bins
+        self.strategies = [
+            [strategy(products=products) for _ in range(n_bins)] for _ in range(n_bins)
+        ]
+        super().__init__(products=products, history=history)
+
+    def learn_from_history(self, df: DataFrame):
+        for (age, wealth), sub_df in (
+            df.assign(age=lambda d: d["age"].apply(self._index))
+            .assign(wealth=lambda d: d["wealth"].apply(self._index))
+            .groupby(["age", "wealth"])
+        ):
+            self.strategies[age][wealth].learn_from_history(df=sub_df)
+
+    def get_recommendation(self, age: float, wealth: float) -> str:
+        return self.strategies[self._index(age)][
+            self._index(wealth)
+        ].get_recommendation(age, wealth)
+
+    def pass_feedback(
+        self, age: float, wealth: float, product_name: str, reward: bool
+    ) -> None:
+        return self.strategies[self._index(age)][self._index(wealth)].pass_feedback(
+            age, wealth, product_name, reward
+        )
+
+    def _index(self, parameter: float) -> int:
+        return min(self.n_bins - 1, int(parameter * self.n_bins))
 
 
 class BaselineStrategy(Strategy):
@@ -46,7 +86,9 @@ class BaselineStrategy(Strategy):
         """Recommend the product with the highest popularity"""
         return max(self.products_popularity.items(), key=operator.itemgetter(1))[0]
 
-    def pass_feedback(self, product_name: str, reward: bool) -> None:
+    def pass_feedback(
+        self, age: float, wealth: float, product_name: str, reward: bool
+    ) -> None:
         self.products_popularity[product_name] += 1
 
 
@@ -63,7 +105,9 @@ class ThompsonSampling(Strategy):
         }
         return max(draw.items(), key=lambda x: x[1])[0]
 
-    def pass_feedback(self, product_name: str, reward: bool) -> None:
+    def pass_feedback(
+        self, age: float, wealth: float, product_name: str, reward: bool
+    ) -> None:
         self.counts[product_name] += 1
         self.rewards[product_name] += int(reward)
 
@@ -86,6 +130,11 @@ def simulate(
             # pass reward to strategy
             reward = products[product_name].is_bought_by(age=age, wealth=wealth)
             total_reward += reward
-            strategy.pass_feedback(product_name=product_name, reward=reward)
+            strategy.pass_feedback(
+                product_name=product_name, reward=reward, age=age, wealth=wealth
+            )
         print(f"{strategy}. Total reward: {total_reward} out of {steps}")
-        print(strategy.products_popularity)
+        try:
+            print(strategy.products_popularity)
+        except:
+            pass
