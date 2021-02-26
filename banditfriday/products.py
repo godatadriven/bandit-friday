@@ -4,11 +4,11 @@ from typing import List
 import matplotlib.pyplot as plt
 from numpy import array, argmax, linspace, mean
 from numpy.random import random
-from scipy.stats import expon, norm, gamma
+from scipy.stats import expon, norm, gamma, gengamma
 
 
 class Product(metaclass=ABCMeta):
-    def __init__(self, mean_probability: float = 0.1):
+    def __init__(self, mean_probability: float = 0.175):
         self.norm = None
         self.norm = mean_probability / mean([mean(x) for x in self.matrix])
 
@@ -61,13 +61,18 @@ class Lollipops(Product):
 
 class Raspberries(Product):
     def _p(self, age: float, wealth: float) -> float:
-        p = gamma.pdf(age*wealth, a=5)
+        p = gamma.pdf(age * wealth, a=5)
         return p
 
 
 class Potatoes(Product):
     def _p(self, age: float, wealth: float) -> float:
         return max(0.0, age - wealth ** 2)
+
+
+class Sushi(Product):
+    def _p(self, age: float, wealth: float) -> float:
+        return gengamma(a=3, c=-3).pdf(age + 0.4) * wealth ** 2
 
 
 def plot_product_probabilities(*products: Product) -> None:
@@ -86,4 +91,4 @@ def plot_max_probabilities(*products: Product) -> None:
         ax.set_title(product.__class__.__name__)
 
 
-ALL_PRODUCTS = [Beer(), Diapers(), Lollipops(), Potatoes(), Raspberries()]
+ALL_PRODUCTS = [Beer(), Diapers(), Lollipops(), Potatoes(), Raspberries(), Sushi()]
