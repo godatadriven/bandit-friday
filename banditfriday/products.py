@@ -48,9 +48,6 @@ class Beer(Product):
 
 
 class CheapToiletPaper(Product):
-    def __init__(self, mean_probability: float = 0.01):
-        super().__init__(mean_probability=mean_probability)
-
     def _p(self, age: float, wealth: float) -> float:
         if wealth < 0.05:
             return 0.1
@@ -102,8 +99,8 @@ def plot_max_probabilities(*products: Product) -> None:
 
 
 ALL_PRODUCTS = [
-    Beer(),
-    CheapToiletPaper(),
+    Beer(mean_probability=0.3),
+    CheapToiletPaper(mean_probability=0.01),
     Diapers(),
     Lollipops(),
     Potatoes(),
