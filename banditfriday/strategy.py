@@ -1,20 +1,29 @@
 import operator
 from abc import ABCMeta, abstractmethod
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from numpy.random import random
+from pandas import DataFrame
 
 from banditfriday.products import Product, ALL_PRODUCTS
 
 
 class Strategy(metaclass=ABCMeta):
-    def __init__(self, products: Dict[str, Product]):
+    def __init__(self, products: Dict[str, Product], history: Optional[DataFrame]):
         self.products = products
+        if history is not None:
+            self.learn_from_history(history)
+
+    def learn_from_history(self, df: DataFrame):
+        """Poor man's update."""
+        for _, row in df.iterrows():
+            for key, value in row.asDict().items():
+                if key in self.products:
+                    self.pass_feedback(key, value)
 
     @abstractmethod
     def get_recommendation(self, age: float, wealth: float) -> str:
         pass
-
 
     @abstractmethod
     def pass_feedback(self, product_name: str, reward: bool) -> None:
@@ -22,13 +31,14 @@ class Strategy(metaclass=ABCMeta):
 
 
 class BaselineStrategy(Strategy):
-    def __init__(self, history = None, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.products_popularity = {key: 0 for key in self.products}
-        if history is not None:
-            for product_name in self.products:
-                if product_name in history.columns:
-                    self.products_popularity[product_name] = history[product_name].sum()
+
+    def learn_from_history(self, df: DataFrame):
+        for product_name in self.products:
+            if product_name in df.columns:
+                self.products_popularity[product_name] = df[product_name].sum()
 
     def get_recommendation(self, age: float, wealth: float) -> str:
         """Recommend the product with the highest popularity"""
