@@ -9,7 +9,9 @@ from banditfriday.products import Product, ALL_PRODUCTS
 
 
 class Strategy(metaclass=ABCMeta):
-    def __init__(self, products: Dict[str, Product], history: Optional[DataFrame]):
+    def __init__(
+        self, products: Dict[str, Product], history: Optional[DataFrame] = None
+    ):
         self.products = products
         if history is not None:
             self.learn_from_history(history)
