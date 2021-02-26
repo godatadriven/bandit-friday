@@ -65,6 +65,11 @@ class Raspberries(Product):
         return p
 
 
+class Potatoes(Product):
+    def _p(self, age: float, wealth: float) -> float:
+        return max(0.0, age - wealth ** 2)
+
+
 def plot_product_probabilities(*products: Product) -> None:
     fig, axes = plt.subplots(3, 3, figsize=(16, 16))
     axes = [ax for row in axes for ax in row]
@@ -81,4 +86,4 @@ def plot_max_probabilities(*products: Product) -> None:
         ax.set_title(product.__class__.__name__)
 
 
-ALL_PRODUCTS = [Beer(), Diapers(), Lollipops(), Raspberries()]
+ALL_PRODUCTS = [Beer(), Diapers(), Lollipops(), Potatoes(), Raspberries()]
