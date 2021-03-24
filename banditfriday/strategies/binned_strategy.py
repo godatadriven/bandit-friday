@@ -19,6 +19,9 @@ class BinnedStrategy(BaseStrategy):
             [strategy(products=products) for _ in range(n_bins)] for _ in range(n_bins)
         ]
         super().__init__(products=products, history=history)
+        self.name = f"{strategy.__name__} - Binned"
+        if history is not None:
+            self.name += " - with training data"
 
     def learn_from_history(self, df: DataFrame):
         for (age, wealth), sub_df in (

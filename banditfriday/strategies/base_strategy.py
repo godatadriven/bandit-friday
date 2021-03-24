@@ -10,9 +10,11 @@ class BaseStrategy(metaclass=ABCMeta):
     def __init__(
         self, products: Dict[str, Product], history: Optional[DataFrame] = None
     ):
+        self.name = type(self).__name__
         self.products = products
         if history is not None:
             self.learn_from_history(history)
+            self.name += " - with training data"
 
     def learn_from_history(self, df: DataFrame):
         """Poor man's update."""

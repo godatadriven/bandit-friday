@@ -28,4 +28,4 @@ def simulate(
                 product_name=product_name, reward=reward, age=age, wealth=wealth
             )
 
-        print(f"{strategy}. Total reward: {total_reward} out of {steps}")
+        print(f"{strategy.name}\n\tTotal reward: {total_reward} out of {steps}")
