@@ -106,6 +106,8 @@ def plot_max_probabilities(products: Dict[str, Product]) -> None:
     for i, (product, ax) in enumerate(zip(products.values(), axes)):
         ax.imshow(max_probs == i)
         ax.set_title(product.__class__.__name__)
+        ax.set_xlabel("age")
+        ax.set_ylabel("wealth")
 
 
 def compute_normalizations() -> None:
