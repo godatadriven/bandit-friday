@@ -1,2 +1,3 @@
-# bandit-friday
-February 2021 GDD Friday project of Roel, Rogier and Vadim
+# Bandit Friday
+
+This is a Friday / Fun project. See the tutorial notebook for details and instructions.
