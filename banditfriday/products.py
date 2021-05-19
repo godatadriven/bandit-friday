@@ -42,12 +42,15 @@ class Product(metaclass=ABCMeta):
             for wealth in linspace(0, 1, 100)
         ]
 
-    def show(self, fig: plt.Figure, ax: plt.Axes) -> None:
-        pos = ax.imshow(self.matrix, cmap="viridis", vmin=0, vmax=1)
-        fig.colorbar(pos, ax=ax)
-        ax.set_title(self.__class__.__name__)
-        ax.set_xlabel("age")
-        ax.set_ylabel("wealth")
+    def show(self, ax: plt.Axes) -> plt.axes:
+        ax.set_title(self.__class__.__name__ + "\n", fontsize=20, fontweight="bold")
+        ticks = [0, 25, 50, 75, 100]
+        tick_labels = ["0", "0.25", "0.5", "0.75", "1"]
+        ax.set_xticks(ticks)
+        ax.set_xticklabels(tick_labels, fontsize=15)
+        ax.set_yticks(ticks)
+        ax.set_yticklabels(tick_labels, fontsize=15)
+        return ax.imshow(self.matrix, vmin=0, vmax=1, cmap=plt.get_cmap("Greens"))
 
 
 class Beer(Product):
@@ -93,11 +96,16 @@ class Sushi(Product):
 
 
 def plot_product_probabilities(products: Dict[str, Product]) -> None:
-    fig, axes = plt.subplots(3, 3, figsize=(16, 16))
-    axes = [ax for row in axes for ax in row]
-    for product, ax in zip(products.values(), axes):
-        product.show(fig, ax)
-
+    fig, axes = plt.subplots(3, 3, figsize=(16, 12))
+    for product, ax in zip(products.values(), axes.flat):
+        im = product.show(ax)
+    for ax in axes[:, 0]:
+        ax.set_ylabel("Wealth\n", fontsize=18)
+    for ax in axes[-1, :]:
+        ax.set_xlabel("\nAge", fontsize=18)
+    fig.tight_layout()
+    cax = fig.add_axes([1.05, 0.1, 0.05, 0.8])
+    fig.colorbar(im, cax=cax).set_label(label="\nBuy/click probability", size=18)
 
 def plot_max_probabilities(products: Dict[str, Product]) -> None:
     fig, axes = plt.subplots(3, 3, figsize=(16, 16))
